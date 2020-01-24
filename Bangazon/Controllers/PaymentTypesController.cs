@@ -7,23 +7,27 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bangazon.Data;
 using Bangazon.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Bangazon.Controllers
 {
     public class PaymentTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PaymentTypesController(ApplicationDbContext context)
+        public PaymentTypesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: PaymentTypes
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.PaymentType.Include(p => p.User);
-            return View(await applicationDbContext.ToListAsync());
+            var user = await GetCurrentUserAsync();
+            var paymentTypes = _context.PaymentType.Include(p => p.User);
+            return View(await paymentTypes.ToListAsync());
         }
 
         // GET: PaymentTypes/Details/5
@@ -59,6 +63,10 @@ namespace Bangazon.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PaymentTypeId,DateCreated,Description,AccountNumber,UserId")] PaymentType paymentType)
         {
+            ModelState.Remove("User");
+            var user = await GetCurrentUserAsync();
+   
+
             if (ModelState.IsValid)
             {
                 _context.Add(paymentType);
@@ -156,5 +164,7 @@ namespace Bangazon.Controllers
         {
             return _context.PaymentType.Any(e => e.PaymentTypeId == id);
         }
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+
     }
 }
