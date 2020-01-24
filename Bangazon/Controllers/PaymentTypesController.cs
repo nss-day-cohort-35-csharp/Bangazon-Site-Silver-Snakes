@@ -50,8 +50,10 @@ namespace Bangazon.Controllers
         }
 
         // GET: PaymentTypes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
+            var user = await GetCurrentUserAsync();
+
             ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id");
             return View();
         }
@@ -63,8 +65,11 @@ namespace Bangazon.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PaymentTypeId,DateCreated,Description,AccountNumber,UserId")] PaymentType paymentType)
         {
+            ModelState.Remove("UserId");
             ModelState.Remove("User");
             var user = await GetCurrentUserAsync();
+            paymentType.UserId = user.Id;
+            
    
 
             if (ModelState.IsValid)
