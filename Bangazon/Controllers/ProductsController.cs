@@ -71,9 +71,11 @@ namespace Bangazon.Controllers
         public async Task<IActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId")] Product product)
         {
             ModelState.Remove("User");
+            ModelState.Remove("UserId");
             var user = await GetCurrentUserAsync();
             if (ModelState.IsValid)
             {
+                product.UserId = user.Id;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
