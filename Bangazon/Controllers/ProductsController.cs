@@ -2,27 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bangazon.Data;
+using Bangazon.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Bangazon.Data;
-using Bangazon.Models;
 
 namespace Bangazon.Controllers
 {
+    [Authorize]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Product.Include(p => p.ProductType).Include(p => p.User);
+            var applicationDbContext = _context.Product
+                .Include(p => p.ProductType)
+                .Include(p => p.User);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -162,5 +170,6 @@ namespace Bangazon.Controllers
         {
             return _context.Product.Any(e => e.ProductId == id);
         }
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }
