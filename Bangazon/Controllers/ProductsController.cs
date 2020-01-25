@@ -26,12 +26,26 @@ namespace Bangazon.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string q)
         {
-            var applicationDbContext = _context.Product
-                .Include(p => p.ProductType)
-                .Include(p => p.User);
-            return View(await applicationDbContext.ToListAsync());
+            var user = await GetCurrentUserAsync();
+
+            if (q == null)
+            {
+                var applicationDbContext = _context.Product
+                    .Include(p => p.ProductType)
+                    .Include(p => p.User);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            else
+            {
+                var applicationDbContext = _context.Product
+                    .Include(p => p.ProductType)
+                    .Include(p => p.User)
+                    .Where(p => p.Title.Contains(q));
+                return View(await applicationDbContext.ToListAsync());
+            }
+
         }
 
         // GET: Products/Details/5
@@ -73,6 +87,7 @@ namespace Bangazon.Controllers
             ModelState.Remove("User");
             ModelState.Remove("UserId");
             var user = await GetCurrentUserAsync();
+            product.Active = true;
             if (ModelState.IsValid)
             {
                 product.UserId = user.Id;
