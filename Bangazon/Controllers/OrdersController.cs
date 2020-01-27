@@ -9,6 +9,7 @@ using Bangazon.Data;
 using Bangazon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Bangazon.Models.OrderViewModels;
 
 namespace Bangazon.Controllers
 {
@@ -28,28 +29,62 @@ namespace Bangazon.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Order.Include(o => o.PaymentType).Include(o => o.User);
+            var user = await GetCurrentUserAsync();
+
+
+
+            var applicationDbContext = _context.Order
+                                .Include(o => o.PaymentType)
+                                .Include(o => o.User)
+                                .Include(o => o.OrderProducts)
+                                    .ThenInclude(op => op.Product)
+                                .Where(m => m.UserId == user.Id && m.DateCompleted != null);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Orders/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var order = await _context.Order
                 .Include(o => o.PaymentType)
                 .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.OrderId == id);
+                .FirstOrDefaultAsync(m => m.DateCompleted == null);
+
+            var paymentTypes = await _context.PaymentType.ToListAsync();
+
             if (order == null)
             {
-                return NotFound();
+                var emptyOrderDetail = new OrderDetailViewModel()
+                {
+                    Order = new Order(),
+                    OrderProducts = new List<OrderProduct>(),
+                };
+                return View(emptyOrderDetail);
             }
-
-            return View(order);
+            else
+            {
+                var orderProduct = await _context.OrderProduct
+                    .Where(op => op.OrderId == order.OrderId)
+                    .Include(op => op.Product)
+                    .ToListAsync();
+                var lineItems = orderProduct.Select(op =>
+                {
+                    var olm = new OrderLineItem
+                    {
+                        Product = op.Product,
+                        Units = 1
+                    };
+                    return olm;
+                });
+                var orderDetail = new OrderDetailViewModel()
+                {
+                    Order = order,
+                    OrderProducts = orderProduct,
+                    LineItems = lineItems,
+                    PaymentTypes = paymentTypes
+                };
+                return View(orderDetail);
+            }
         }
 
         // GET: Orders/Create
