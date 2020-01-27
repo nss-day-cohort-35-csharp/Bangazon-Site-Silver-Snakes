@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bangazon.Data;
 using Bangazon.Models;
+using Bangazon.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -71,10 +74,11 @@ namespace Bangazon.Controllers
         // GET: Products/Create
         public async Task<IActionResult> CreateAsync()
         {
+            var viewModel = new ProductCreateViewModel();
             var user = await GetCurrentUserAsync();
             ViewData["ProductTypeId"] = new SelectList(_context.ProductType, "ProductTypeId", "Label");
             ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id");
-            return View();
+            return View(viewModel);
         }
 
         // POST: Products/Create
@@ -82,23 +86,45 @@ namespace Bangazon.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId,LocalDelivery")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId,LocalDelivery,File")] ProductCreateViewModel viewModel, IFormFile image)
         {
             ModelState.Remove("User");
             ModelState.Remove("UserId");
             var user = await GetCurrentUserAsync();
-            product.Active = true;
+            
+            viewModel.Active = true;
             if (ModelState.IsValid)
             {
+                var product = new Product()
+                {
+                    Active = viewModel.Active,
+                    City = viewModel.City,
+                    Description = viewModel.Description,
+                    LocalDelivery = viewModel.LocalDelivery,
+                    Title = viewModel.Title,
+                    Price = viewModel.Price,
+                    Quantity = viewModel.Quantity,
+                    ProductTypeId = viewModel.ProductTypeId,
+                };
+                if (viewModel.File != null && viewModel.File.Length > 0)
+                {
+                    var fileName = Path.GetFileName(viewModel.File.FileName); //getting path of actual file name
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName); //creating path combining file name w/ www.root\\images directory
+                    using (var fileSteam = new FileStream(filePath, FileMode.Create)) //using filestream to get the actual path 
+                    { 
+                        await viewModel.File.CopyToAsync(fileSteam);
+                    }
+                    product.ImagePath = fileName;
+                }
                 product.UserId = user.Id;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ProductTypeId"] = new SelectList(_context.ProductType, "ProductTypeId", "Label", product.ProductTypeId);
-            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", product.UserId);
-            return View(product);
+            ViewData["ProductTypeId"] = new SelectList(_context.ProductType, "ProductTypeId", "Label", viewModel.ProductTypeId);
+            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", viewModel.UserId);
+            return View(viewModel);
 
         }
 
