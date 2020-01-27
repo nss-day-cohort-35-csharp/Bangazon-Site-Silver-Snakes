@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bangazon.Models
 {
@@ -37,6 +37,9 @@ namespace Bangazon.Models
 
         public string City { get; set; }
 
+        [Display(Name = "Local Delivery")]
+        public bool LocalDelivery { get; set; }
+
         public string ImagePath { get; set; }
 
         public bool Active { get; set; }
@@ -48,10 +51,10 @@ namespace Bangazon.Models
         [Display(Name = "Product Category")]
         public int ProductTypeId { get; set; }
 
+        [Display(Name = "Product Type")]
         public ProductType ProductType { get; set; }
 
         public virtual ICollection<OrderProduct> OrderProducts { get; set; }
-
 
         public Product()
         {
