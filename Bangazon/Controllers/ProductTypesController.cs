@@ -20,9 +20,23 @@ namespace Bangazon.Controllers
         }
 
         // GET: ProductTypes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.ProductType.ToListAsync());
+            if (searchString == null)
+            {
+                var applicationDbContext = _context.Product
+                    .Include(p => p.ProductType)
+                    .Include(p => p.User);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            else
+            {
+                var applicationDbContext = _context.Product
+                    .Include(p => p.ProductType)
+                    .Include(p => p.User)
+                    .Where(p => p.City.Contains(searchString) || p.Title.Contains(searchString) || p.ProductType.Label.Contains(searchString));
+                return View(await applicationDbContext.ToListAsync());
+            }
         }
 
         // GET: ProductTypes/Details/5
