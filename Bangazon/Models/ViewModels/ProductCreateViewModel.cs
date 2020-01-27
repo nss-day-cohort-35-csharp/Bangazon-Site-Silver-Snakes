@@ -1,15 +1,16 @@
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Bangazon.Models
+namespace Bangazon.Models.ViewModels
 {
-    public class Product
+    public class ProductCreateViewModel
     {
+        public IFormFile File { get; set; }
         [Key]
         public int ProductId { get; set; }
 
@@ -42,8 +43,8 @@ namespace Bangazon.Models
         public bool LocalDelivery { get; set; }
 
         public string ImagePath { get; set; }
-        [NotMapped]
-        public IFormFile File { get; set; }
+      
+        
 
         public bool Active { get; set; }
 
@@ -59,11 +60,6 @@ namespace Bangazon.Models
 
         public virtual ICollection<OrderProduct> OrderProducts { get; set; }
 
-        public Product()
-        {
-            Active = true;
-
-        }
-
+  
     }
 }
