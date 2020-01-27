@@ -18,5 +18,6 @@ namespace Bangazon.Models
     public int Quantity { get; set; }
 
     public virtual ICollection<Product> Products { get; set; }
+    public List<ProductType> ProductTypes { get; set; }
   }
 }
