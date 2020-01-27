@@ -100,7 +100,7 @@ namespace Bangazon.Migrations
                         {
                             Id = "00000000-ffff-ffff-ffff-ffffffffffff",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "384c4422-a88b-4734-b73f-5fb572ad257e",
+                            ConcurrencyStamp = "4cc7b5ef-376e-44a3-b0fb-1c150b1efd02",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             FirstName = "Admina",
@@ -108,7 +108,7 @@ namespace Bangazon.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN@ADMIN.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEOppflFuG6zZSSk5pCQ/Lghu+H3J1M6k01YVa21oFfVHFWRFstnRMltSpQ8ujSDW+Q==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEC1L6wTsSu67vu1bXgCGeZP4E6YlZkvGoTAdoa9UxptH2Rysl33ho82vJCzsKfgxfg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "7f434309-a4d9-48e9-9ebb-8803db794577",
                             StreetAddress = "123 Infinity Way",
