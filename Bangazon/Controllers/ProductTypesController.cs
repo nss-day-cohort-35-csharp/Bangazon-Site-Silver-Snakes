@@ -7,24 +7,42 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bangazon.Data;
 using Bangazon.Models;
+using Microsoft.AspNetCore.Identity;
+using Bangazon.Models.ProductTypeViewModels;
 
 namespace Bangazon.Controllers
 {
     public class ProductTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ProductTypesController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProductTypesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: ProductTypes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ProductType.ToListAsync());
+        var user = await GetCurrentUserAsync();
+           //var model = new ProductTypeViewModel();
+
+           var model = await _context
+                .ProductType.Include(pt => pt.Products)
+                .Select(pt => new ProductTypeViewModel()
+                {
+                    ProductTypeId = pt.ProductTypeId,
+                    Label = pt.Label,
+                    ProductCount = pt.Products.Count(),
+                    Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
+                }).ToListAsync();
+
+            return View(model);
+
         }
 
+         
         // GET: ProductTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -152,5 +170,6 @@ namespace Bangazon.Controllers
         {
             return _context.ProductType.Any(e => e.ProductTypeId == id);
         }
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }
