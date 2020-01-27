@@ -26,11 +26,11 @@ namespace Bangazon.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(string q)
+        public async Task<IActionResult> Index(string searchCity)
         {
             var user = await GetCurrentUserAsync();
 
-            if (q == null)
+            if (searchCity == null)
             {
                 var applicationDbContext = _context.Product
                     .Include(p => p.ProductType)
@@ -42,7 +42,7 @@ namespace Bangazon.Controllers
                 var applicationDbContext = _context.Product
                     .Include(p => p.ProductType)
                     .Include(p => p.User)
-                    .Where(p => p.Title.Contains(q));
+                    .Where(p => p.City.Contains(searchCity) || p.Title.Contains(searchCity) || p.ProductType.Label.Contains(searchCity));
                 return View(await applicationDbContext.ToListAsync());
             }
 
@@ -82,7 +82,7 @@ namespace Bangazon.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId,LocalDelivery")] Product product)
         {
             ModelState.Remove("User");
             ModelState.Remove("UserId");

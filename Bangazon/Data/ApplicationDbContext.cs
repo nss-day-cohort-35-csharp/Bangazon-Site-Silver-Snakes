@@ -141,6 +141,7 @@ namespace Bangazon.Data {
                     UserId = user.Id,
                     Description = "It flies high",
                     Title = "Kite",
+                    LocalDelivery = false,
                     Quantity = 100,
                     Price = 2.99
                 },
@@ -151,6 +152,7 @@ namespace Bangazon.Data {
                     UserId = user.Id,
                     Description = "It rolls fast",
                     Title = "Wheelbarrow",
+                    LocalDelivery = false,
                     Quantity = 5,
                     Price = 29.99
                 },
@@ -161,6 +163,7 @@ namespace Bangazon.Data {
                     UserId = user.Id,
                     Description = "It cuts things",
                     Title = "Saw",
+                    LocalDelivery = true,
                     Quantity = 18,
                     Price = 31.49
                 },
@@ -171,6 +174,7 @@ namespace Bangazon.Data {
                     UserId = user.Id,
                     Description = "It puts holes in things",
                     Title = "Electric Drill",
+                    LocalDelivery = true,
                     Quantity = 12,
                     Price = 24.89
                 },
@@ -181,6 +185,7 @@ namespace Bangazon.Data {
                     UserId = user.Id,
                     Description = "It puts things together",
                     Title = "Hammer",
+                    LocalDelivery = true,
                     Quantity = 32,
                     Price = 22.69
                 }

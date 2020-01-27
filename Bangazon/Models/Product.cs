@@ -35,6 +35,8 @@ namespace Bangazon.Models
         public string UserId {get; set;}
 
         public string City {get; set;}
+        [Display(Name = "Local Delivery")]
+        public bool LocalDelivery { get; set; }
 
         public string ImagePath {get; set;}
 
@@ -47,6 +49,7 @@ namespace Bangazon.Models
         [Display(Name="Product Category")]
         public int ProductTypeId { get; set; }
 
+        [Display(Name = "Product Type")]
         public ProductType ProductType { get; set; }
 
         public virtual ICollection<OrderProduct> OrderProducts { get; set; }
