@@ -45,6 +45,8 @@ namespace Bangazon.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details()
         {
+            var user = await GetCurrentUserAsync();
+
             var order = await _context.Order
                 .Include(o => o.PaymentType)
                 .Include(o => o.User)
@@ -69,12 +71,12 @@ namespace Bangazon.Controllers
                     .ToListAsync();
                 var lineItems = orderProduct.Select(op =>
                 {
-                    var olm = new OrderLineItem
+                    var orderLineItem = new OrderLineItem
                     {
                         Product = op.Product,
                         Units = 1
                     };
-                    return olm;
+                    return orderLineItem;
                 });
                 var orderDetail = new OrderDetailViewModel()
                 {
