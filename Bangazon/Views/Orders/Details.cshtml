@@ -1,6 +1,5 @@
 ﻿@model Bangazon.Models.Order
 
-
 @{
     ViewData["Title"] = "Details";
 }
@@ -11,33 +10,40 @@
     <h4>Order</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.DateCreated)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.DateCreated)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.DateCompleted)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.DateCompleted)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.PaymentType)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.PaymentType.AccountNumber)
         </dd>
+        @foreach (var item in Model.OrderProducts)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(modelItem => item.Product.Title)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(modelItem => item.Product.Title)
+            </dd>
+        }
     </dl>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.OrderId" asp-controller="Orders">Complete Order</a>
+
+    </div>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @*<a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |*@
+    @*<a asp-action="Index">Back to List</a>*@
 </div>

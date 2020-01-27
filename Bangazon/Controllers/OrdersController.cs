@@ -43,50 +43,26 @@ namespace Bangazon.Controllers
         }
 
         // GET: Orders/Details/5
-        public async Task<IActionResult> Details()
+        public async Task<IActionResult> Details(int? id)
         {
+
             var user = await GetCurrentUserAsync();
 
             var order = await _context.Order
                 .Include(o => o.PaymentType)
                 .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.DateCompleted == null);
-
-            var paymentTypes = await _context.PaymentType.ToListAsync();
-
+                .Include(o => o.OrderProducts)
+                     .ThenInclude(op => op.Product)
+                .FirstOrDefaultAsync(u => u.UserId == user.Id && u.DateCompleted == null);
+            
+            
             if (order == null)
             {
-                var emptyOrderDetail = new OrderDetailViewModel()
-                {
-                    Order = new Order(),
-                    OrderProducts = new List<OrderProduct>(),
-                };
-                return View(emptyOrderDetail);
+                TempData["BadOrder"] = "Please put an item in your shopping cart.";
+                return RedirectToAction("Index", "Home");
             }
-            else
-            {
-                var orderProduct = await _context.OrderProduct
-                    .Where(op => op.OrderId == order.OrderId)
-                    .Include(op => op.Product)
-                    .ToListAsync();
-                var lineItems = orderProduct.Select(op =>
-                {
-                    var orderLineItem = new OrderLineItem
-                    {
-                        Product = op.Product,
-                        Units = 1
-                    };
-                    return orderLineItem;
-                });
-                var orderDetail = new OrderDetailViewModel()
-                {
-                    Order = order,
-                    OrderProducts = orderProduct,
-                    LineItems = lineItems,
-                    PaymentTypes = paymentTypes
-                };
-                return View(orderDetail);
-            }
+
+            return View(order);
         }
 
         // GET: Orders/Create
