@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Bangazon.Data;
 using Bangazon.Models;
 using Microsoft.AspNetCore.Identity;
+using Bangazon.Models.ProductTypeViewModels;
 
 namespace Bangazon.Controllers
 {
@@ -25,9 +26,20 @@ namespace Bangazon.Controllers
         public async Task<IActionResult> Index()
         {
         var user = await GetCurrentUserAsync();
-        var productType = await _context.ProductType.Include(p => p.Products);
+           //var model = new ProductTypeViewModel();
 
-            return View(await productType.ToListAsync());
+           var model = await _context
+                .ProductType.Include(pt => pt.Products)
+                .Select(pt => new ProductTypeViewModel()
+                {
+                    ProductTypeId = pt.ProductTypeId,
+                    Label = pt.Label,
+                    ProductCount = pt.Products.Count(),
+                    Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
+                }).ToListAsync();
+
+            return View(model);
+
         }
 
          
