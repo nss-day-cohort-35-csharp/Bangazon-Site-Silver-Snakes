@@ -47,7 +47,7 @@ namespace Bangazon.Models
         [Required(ErrorMessage = "Error: Must choose a product category")]
         [Display(Name = "Product Category")]
         public int ProductTypeId { get; set; }
-
+        [Display(Name = "Product Category")]
         public ProductType ProductType { get; set; }
 
         public virtual ICollection<OrderProduct> OrderProducts { get; set; }
@@ -58,6 +58,7 @@ namespace Bangazon.Models
             Active = true;
 
         }
+      
 
     }
 }

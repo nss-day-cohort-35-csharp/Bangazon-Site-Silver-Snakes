@@ -32,6 +32,7 @@ namespace Bangazon.Controllers
                 .Include(p => p.ProductType)
                 .Include(p => p.User);
             return View(await applicationDbContext.ToListAsync());
+
         }
 
         // GET: Products/Details/5
