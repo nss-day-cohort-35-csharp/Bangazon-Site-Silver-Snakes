@@ -9,16 +9,6 @@
 <p>
     <a asp-action="Create">Sell Product</a>
 </p>
-<div class="card alert alert-dark">
-    <div class="card-body">
-        <form asp-controller="Products" asp-action="Index">
-            <div class="col"><input type="text" name="searchCity" class="form-control" placeholder="Search Cities, Products, or Product Types" /></div>
-            <div class="col">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
 <table class="table">
     <thead>
         <tr>
@@ -45,9 +35,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.LocalDelivery)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Active)
             </th>
 
             <th>
@@ -82,9 +69,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.LocalDelivery)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Active)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ProductType.Label)
