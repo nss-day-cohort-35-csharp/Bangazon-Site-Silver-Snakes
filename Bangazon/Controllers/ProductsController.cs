@@ -67,6 +67,7 @@ namespace Bangazon.Controllers
             {
                 return NotFound();
             }
+           
 
             return View(product);
         }
