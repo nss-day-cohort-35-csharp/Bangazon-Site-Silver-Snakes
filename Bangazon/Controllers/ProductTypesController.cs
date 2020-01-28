@@ -2,40 +2,58 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bangazon.Data;
+using Bangazon.Models;
+using Bangazon.Models.ProductTypeViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Bangazon.Data;
-using Bangazon.Models;
 
 namespace Bangazon.Controllers
 {
     public class ProductTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ProductTypesController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProductTypesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: ProductTypes
         public async Task<IActionResult> Index(string searchString)
         {
+            var user = await GetCurrentUserAsync();
             if (searchString == null)
             {
-                var applicationDbContext = _context.Product
-                    .Include(p => p.ProductType)
-                    .Include(p => p.User);
-                return View(await applicationDbContext.ToListAsync());
+                var model = await _context
+                    .ProductType.Include(pt => pt.Products)
+                    .Select(pt => new ProductTypeViewModel()
+                    {
+                        ProductTypeId = pt.ProductTypeId,
+                            Label = pt.Label,
+                            ProductCount = pt.Products.Count(),
+                            Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
+                    }).ToListAsync();
+
+                return View(model);
             }
             else
             {
-                var applicationDbContext = _context.Product
-                    .Include(p => p.ProductType)
-                    .Include(p => p.User)
-                    .Where(p => p.City.Contains(searchString) || p.Title.Contains(searchString) || p.ProductType.Label.Contains(searchString));
-                return View(await applicationDbContext.ToListAsync());
+                var model = await _context
+                    .ProductType.Include(pt => pt.Products)
+                    .Where(p => p.Label.Contains(searchString))
+                    .Select(pt => new ProductTypeViewModel()
+                    {
+                        ProductTypeId = pt.ProductTypeId,
+                            Label = pt.Label,
+                            ProductCount = pt.Products.Count(),
+                            Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
+                    }).ToListAsync();
+
+                return View(model);
             }
         }
 
@@ -46,11 +64,11 @@ namespace Bangazon.Controllers
             {
                 return NotFound();
             }
-           
+
             var productType = await _context.ProductType
-              
-                    .Include(p => p.Products)
-             
+
+                .Include(p => p.Products)
+
                 .FirstOrDefaultAsync(m => m.ProductTypeId == id);
             if (productType == null)
             {
@@ -166,5 +184,6 @@ namespace Bangazon.Controllers
         {
             return _context.ProductType.Any(e => e.ProductTypeId == id);
         }
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }

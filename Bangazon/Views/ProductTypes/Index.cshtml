@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Bangazon.Models.ProductType>
+﻿@model IEnumerable<Bangazon.Models.ProductTypeViewModels.ProductTypeViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -15,19 +15,31 @@
             <th>
                 @Html.DisplayNameFor(model => model.Label)
             </th>
+
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Label)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.ProductTypeId">List of Products</a> 
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        @foreach (var productType in Model)
+        {
+        <td>
+            <div class="list-group-item list-group-item-primary">
+                @Html.DisplayFor(modelItem => productType.Label) (@Html.DisplayFor(modelItem => productType.ProductCount))
+                <ul class="list-group-item list-group-item-success">
+                    @foreach (var product in productType.Products)
+                    {
+                        <li class="list-group-item list-group-item-danger">
+
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId"> @Html.DisplayFor(modelItem => product.Title)</a>
+                        </li>
+
+
+                    }
+                </ul>
+            </div>
+        </td>
+
+    }
+
+        </tbody>
+    </table>
