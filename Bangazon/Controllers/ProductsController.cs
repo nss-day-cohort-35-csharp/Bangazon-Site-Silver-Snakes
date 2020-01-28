@@ -29,26 +29,24 @@ namespace Bangazon.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(string searchCity)
+        public async Task<IActionResult> Index(string searchString)
         {
             var user = await GetCurrentUserAsync();
-
-            if (searchCity == null)
+            if (searchString == null)
             {
-                var applicationDbContext = _context.Product
+                var model = _context.Product
                     .Include(p => p.ProductType)
                     .Include(p => p.User);
-                return View(await applicationDbContext.ToListAsync());
+                return View(await model.ToListAsync());
             }
             else
             {
-                var applicationDbContext = _context.Product
-                    .Include(p => p.ProductType)
-                    .Include(p => p.User)
-                    .Where(p => p.City.Contains(searchCity) || p.Title.Contains(searchCity) || p.ProductType.Label.Contains(searchCity));
-                return View(await applicationDbContext.ToListAsync());
+                var model = _context.Product
+                 .Include(p => p.ProductType)
+                 .Include(p => p.User)
+                 .Where(p => p.Title.Contains(searchString) || p.ProductType.Label.Contains(searchString) || p.City.Contains(searchString));
+                return View(await model.ToListAsync());
             }
-
         }
 
         // GET: Products/Details/5
@@ -92,7 +90,7 @@ namespace Bangazon.Controllers
             ModelState.Remove("User");
             ModelState.Remove("UserId");
             var user = await GetCurrentUserAsync();
-            
+
             viewModel.Active = true;
             if (ModelState.IsValid)
             {
@@ -112,7 +110,7 @@ namespace Bangazon.Controllers
                     var fileName = Path.GetFileName(viewModel.File.FileName); //getting path of actual file name
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName); //creating path combining file name w/ www.root\\images directory
                     using (var fileSteam = new FileStream(filePath, FileMode.Create)) //using filestream to get the actual path 
-                    { 
+                    {
                         await viewModel.File.CopyToAsync(fileSteam);
                     }
                     product.ImagePath = fileName;

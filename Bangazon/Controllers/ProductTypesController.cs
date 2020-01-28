@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bangazon.Data;
+using Bangazon.Models;
+using Bangazon.Models.ProductTypeViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Bangazon.Data;
-using Bangazon.Models;
-using Microsoft.AspNetCore.Identity;
-using Bangazon.Models.ProductTypeViewModels;
 
 namespace Bangazon.Controllers
 {
@@ -25,24 +25,22 @@ namespace Bangazon.Controllers
         // GET: ProductTypes
         public async Task<IActionResult> Index()
         {
-        var user = await GetCurrentUserAsync();
-           //var model = new ProductTypeViewModel();
+            var user = await GetCurrentUserAsync();
 
-           var model = await _context
-                .ProductType.Include(pt => pt.Products)
-                .Select(pt => new ProductTypeViewModel()
-                {
-                    ProductTypeId = pt.ProductTypeId,
-                    Label = pt.Label,
-                    ProductCount = pt.Products.Count(),
-                    Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
-                }).ToListAsync();
+                var model = await _context
+                    .ProductType.Include(pt => pt.Products)
+                    .Select(pt => new ProductTypeViewModel()
+                    {
+                        ProductTypeId = pt.ProductTypeId,
+                            Label = pt.Label,
+                            ProductCount = pt.Products.Count(),
+                            Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
+                    }).ToListAsync();
 
-            return View(model);
-
+                return View(model);
+          
         }
 
-         
         // GET: ProductTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -50,11 +48,11 @@ namespace Bangazon.Controllers
             {
                 return NotFound();
             }
-           
+
             var productType = await _context.ProductType
-              
-                    .Include(p => p.Products)
-             
+
+                .Include(p => p.Products)
+
                 .FirstOrDefaultAsync(m => m.ProductTypeId == id);
             if (productType == null)
             {
