@@ -23,11 +23,10 @@ namespace Bangazon.Controllers
         }
 
         // GET: ProductTypes
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            if (searchString == null)
-            {
+
                 var model = await _context
                     .ProductType.Include(pt => pt.Products)
                     .Select(pt => new ProductTypeViewModel()
@@ -39,22 +38,7 @@ namespace Bangazon.Controllers
                     }).ToListAsync();
 
                 return View(model);
-            }
-            else
-            {
-                var model = await _context
-                    .ProductType.Include(pt => pt.Products)
-                    .Where(p => p.Label.Contains(searchString))
-                    .Select(pt => new ProductTypeViewModel()
-                    {
-                        ProductTypeId = pt.ProductTypeId,
-                            Label = pt.Label,
-                            ProductCount = pt.Products.Count(),
-                            Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
-                    }).ToListAsync();
-
-                return View(model);
-            }
+          
         }
 
         // GET: ProductTypes/Details/5
