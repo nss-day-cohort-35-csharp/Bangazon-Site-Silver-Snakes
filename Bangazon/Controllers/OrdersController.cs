@@ -102,7 +102,7 @@ namespace Bangazon.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "AccountNumber", order.PaymentTypeId);
+            
             ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", order.UserId);
             return View(order);
         }
