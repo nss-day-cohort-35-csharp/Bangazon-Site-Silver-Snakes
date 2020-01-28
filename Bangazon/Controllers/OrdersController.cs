@@ -46,40 +46,27 @@ namespace Bangazon.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             var user = await GetCurrentUserAsync();
-            var model = new OrderDetailViewModel();
-
-            if (id == null)
-            {
-                return NotFound();
-            }
 
             var order = await _context.Order
                 .Include(o => o.PaymentType)
                 .Include(o => o.User)
-                 .Include(o => o.OrderProducts)
-                 .ThenInclude(op => op.Product)
-                 .Where(u => u.UserId == user.Id)
-                .FirstOrDefaultAsync(m => m.OrderId == id);
-
-            model.Order = order;
-
-            model.LineItems = order.OrderProducts
-                .GroupBy(op => op.Product)
-                .Select(element => new OrderLineItem
-                {
-                    Product = element.Key,
-                    Units = element.Select(e => e.Product).Count(),
-                    Cost = element.Key.Price * element.Select(e => e.ProductId).Count()
-                });
+                .Include(o => o.OrderProducts).ThenInclude(o => o.Product)
+                .FirstOrDefaultAsync(m => m.UserId == user.Id && m.DateCompleted == null);
 
             if (order == null)
             {
-                return NotFound();
+                _context.Add(new Order()
+                {
+                    DateCreated = DateTime.Today,
+                    UserId = user.Id
+                });
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details));
             }
 
-            return View(model);
-
+            return View(order);
         }
+
 
         // GET: Orders/Create
         public IActionResult Create()
