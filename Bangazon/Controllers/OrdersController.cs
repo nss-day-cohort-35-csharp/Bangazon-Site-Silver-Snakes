@@ -45,24 +45,40 @@ namespace Bangazon.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-
             var user = await GetCurrentUserAsync();
+            var model = new OrderDetailViewModel();
+
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var order = await _context.Order
                 .Include(o => o.PaymentType)
                 .Include(o => o.User)
-                .Include(o => o.OrderProducts)
-                     .ThenInclude(op => op.Product)
-                .FirstOrDefaultAsync(u => u.UserId == user.Id && u.DateCompleted == null);
-            
-            
+                 .Include(o => o.OrderProducts)
+                 .ThenInclude(op => op.Product)
+                 .Where(u => u.UserId == user.Id)
+                .FirstOrDefaultAsync(m => m.OrderId == id);
+
+            model.Order = order;
+
+            model.LineItems = order.OrderProducts
+                .GroupBy(op => op.Product)
+                .Select(element => new OrderLineItem
+                {
+                    Product = element.Key,
+                    Units = element.Select(e => e.Product).Count(),
+                    Cost = element.Key.Price * element.Select(e => e.ProductId).Count()
+                });
+
             if (order == null)
             {
-                TempData["BadOrder"] = "Please put an item in your shopping cart.";
-                return RedirectToAction("Index", "Home");
+                return NotFound();
             }
 
-            return View(order);
+            return View(model);
+
         }
 
         // GET: Orders/Create
@@ -98,7 +114,7 @@ namespace Bangazon.Controllers
             {
                 return NotFound();
             }
-
+            
             var order = await _context.Order.FindAsync(id);
             if (order == null)
             {
@@ -143,7 +159,7 @@ namespace Bangazon.Controllers
                         throw;
                     }
                 }
-                TempData["Completed"] = "We now have your money, please leave.";
+                TempData["SuccessMessage"] = "Your order has been completed successfully.";
                 return RedirectToAction("Index", "Home");
             }
             ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "Description", order.PaymentTypeId);
