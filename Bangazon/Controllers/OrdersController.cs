@@ -146,8 +146,8 @@ namespace Bangazon.Controllers
                         throw;
                     }
                 }
-                TempData["SuccessMessage"] = "Your order has been completed successfully.";
-                return RedirectToAction("Index", "Home");
+                
+                return View("Confirmation");
             }
             ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "Description", order.PaymentTypeId);
             ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", order.UserId);

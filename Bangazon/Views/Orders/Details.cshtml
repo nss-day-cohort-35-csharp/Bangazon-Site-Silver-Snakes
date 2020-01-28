@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Shopping Cart</h1>
 
 <div>
     <h4>Order</h4>
@@ -42,4 +42,9 @@
         <a asp-action="Edit" asp-route-id="@Model.OrderId" asp-controller="Orders">Complete Order</a>
 
     </div>
+    <div>
+        <a asp-action="Delete" asp-route-id="@Model.OrderId" asp-controller="Orders">Cancel Order</a>
+
+    </div>
+
 </div>
