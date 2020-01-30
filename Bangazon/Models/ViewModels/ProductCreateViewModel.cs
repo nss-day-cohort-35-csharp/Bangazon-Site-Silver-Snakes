@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Bangazon.Models.ViewModels
 {
@@ -42,6 +43,7 @@ namespace Bangazon.Models.ViewModels
         [Display(Name = "Local Delivery")]
         public bool LocalDelivery { get; set; }
 
+        //[AllowFileSize(FileSize = 5 * 1024 * 1024, ErrorMessage = "Maximum allowed file size is 5 MB")]
         public string ImagePath { get; set; }
       
         
