@@ -31,6 +31,8 @@ namespace Bangazon.Controllers
         }
 
         public async Task<IActionResult> Cart()
+            //another cart method but httpPost 
+
         {
             var user = await GetUserAsync();
 
@@ -84,6 +86,12 @@ namespace Bangazon.Controllers
             return View(viewModel);
         }
 
+        //added this at minute 35 of recording right before lunch
+        [HttpPost]
+        public async Task<IActionResult> Cart([Bind("SelectedPaymentId")]ShoppingCartViewModel vm)
+        {
+            return View();
+        }
         private Task<ApplicationUser> GetUserAsync()
         {
             return _userManager.GetUserAsync(HttpContext.User);
