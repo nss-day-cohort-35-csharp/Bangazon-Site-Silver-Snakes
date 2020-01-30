@@ -1,0 +1,93 @@
+﻿@model Bangazon.Models.OrderViewModels.ShoppingCartViewModel;
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<h1 class="="uiactions=" center aligned header">
+    <i class="navbar-toggler-icon shopping cart"></i>
+</h1>
+
+<h3 class="="uiactions="ui center aligned header">
+    Total Cost
+</h3>
+<h5 class="ui center aligned header">
+    @Model.TotalCost
+</h5>
+
+
+<h1>Cart</h1>
+
+@*made view w/ empty model type*@
+
+<p>
+    Total Cost @Model.TotalCost
+</p>
+ <p>   First Name @Model.User.FirstName</p>
+
+ <p>   Last Name @Model.User.LastName</p>
+
+ <p>   Total Cost @Model.User.StreetAddress</p>
+
+    @foreach (var item in Model.OrderDetails.LineItems)
+    {
+        <p>@item.Product.Title</p>
+        <p>@item.Units</p>
+
+    }
+
+    <select asp-for="SelectedPaymentId" asp-items="Model.PaymentOptions"></select>
+<table class=""uiactions="celled table">
+    <thead>
+        <tr>
+            <th>Products</th>
+            <th>Units</th>
+            <th>Products</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderDetails.LineItems)
+        {
+        <tr>
+            <td data-label="Product">@item.Product.Title</td>
+            <td data-label="Units">@item.Units</td>
+            <td data-label="Cost">@item.Cost</td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<div class="ui card">
+    <div class="content">
+        <div class="header">Ship To</div>
+    </div>
+    <div class="content">
+        <h4 class="ui sub header">@Model.User.FirstName @Model.User.LastName</h4>
+        <div class="ui small feed">
+            <div class="event">
+                <div class="content">
+                    <div class="summary">
+                        <p>@Model.User.StreetAddress</p>
+                    </div>
+                    
+
+                    <div class="ui selection dropdown">
+                        <input asp-for="SelectedPaymentId" type="hidden" name="gender" />
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Payment Type</div>
+                        <div class="menu">
+                            @foreach (var item in Model.PaymentOptions)
+                            {
+                                <div class="nav-item" data-value="@item.Value">@item.Text</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <div class="extra content">
+        <button class="ui button">Join Project</button>
+    </div>
+</div>
