@@ -26,6 +26,70 @@ namespace Bangazon.Controllers
             _userManager = userManager;
         }
 
+        public async Task<IActionResult> Cart()
+        {
+            var user = await GetUserAsync();
+
+            var order = await _context.Order
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product) //minute 14:30
+                .FirstOrDefaultAsync(o => o.UserId == user.Id && o.PaymentTypeId == null); //also get list of order products w/ .include
+
+            var totalCost = order.OrderProducts.Sum(op => op.Product.Price);
+
+            //PaymentType.ToListAsync is bad bc it would ... 21:00 allow you to use whatevrr payment
+            var paymentTypes = await _context.PaymentType.Where(pt => pt.UserId == user.Id).ToListAsync();
+            //convert into select list items
+
+            var paymentOptions = paymentTypes.Select(pt => new SelectListItem
+            {
+                Value = pt.PaymentTypeId.ToString(),
+                Text = pt.Description
+
+            }).ToList();
+
+            //ready to make view model now
+
+
+            var viewModel = new ShoppingCartViewModel
+            {
+                TotalCost = totalCost,
+                User = user,
+                PaymentOptions = paymentOptions,
+                SelectedPaymentId = paymentTypes.FirstOrDefault().PaymentTypeId,
+
+                //default to something by using.... firstOrDefault
+                OrderDetails = new OrderDetailViewModel()
+                {
+                    Order = order,
+                    LineItems = order.OrderProducts
+                    .GroupBy(op => op.ProductId)
+                    .Select(group => new OrderLineItem
+                    {
+                        Units = group.Count(),
+                        Product = group.FirstOrDefault().Product,
+                        //min 40 on xbox recording .. give me first one and let me know about the product
+                        // Cost = group.FirstOrDefault().Product.Price * group.Count()
+                        Cost = group.Sum(op => op.Product.Price)
+                    })
+
+                }
+
+            };
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Cart([Bind("SelectedPaymentId")]ShoppingCartViewModel vm)
+        {
+            return View();
+        }
+        private Task<ApplicationUser> GetUserAsync()
+        {
+            return _userManager.GetUserAsync(HttpContext.User);
+        }
+
+
         // GET: Orders
         public async Task<IActionResult> Index()
         {
