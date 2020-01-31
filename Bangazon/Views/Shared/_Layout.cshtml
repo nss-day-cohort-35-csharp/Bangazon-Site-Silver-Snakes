@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -12,8 +13,10 @@
     <div class="ui wide sidebar inverted vertical menu">
         <partial name="_LoginPartial" />
         <a class="item text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        <a class="item text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Your Orders</a>
+        <a class="item text-dark" asp-area="" asp-controller="Products" asp-action="Index">Sell Something</a>
         <a class="item text-dark" asp-area="" asp-controller="Orders" asp-action="Cart">View Cart</a>
-        <a class="item text-dark" asp-area="" asp-controller="Home" asp-action="Index">Product Types</a>
+        <a class="item text-dark" asp-area="" asp-controller="ProductTypes" asp-action="Index">Product Types</a>
     </div>
     <div class="pusher">
         <div class="ui container">
