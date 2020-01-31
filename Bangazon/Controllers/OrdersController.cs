@@ -26,6 +26,70 @@ namespace Bangazon.Controllers
             _userManager = userManager;
         }
 
+        //public async Task<IActionResult> Cart()
+        //{
+        //    var user = await GetUserAsync();
+
+        //    var order = await _context.Order
+        //        .Include(o => o.OrderProducts)
+        //        .ThenInclude(op => op.Product) //minute 14:30
+        //        .FirstOrDefaultAsync(o => o.UserId == user.Id && o.PaymentTypeId == null); //also get list of order products w/ .include
+
+        //    var totalCost = order.OrderProducts.Sum(op => op.Product.Price);
+
+        //    //PaymentType.ToListAsync is bad bc it would ... 21:00 allow you to use whatevrr payment
+        //    var paymentTypes = await _context.PaymentType.Where(pt => pt.UserId == user.Id).ToListAsync();
+        //    //convert into select list items
+
+        //    var paymentOptions = paymentTypes.Select(pt => new SelectListItem
+        //    {
+        //        Value = pt.PaymentTypeId.ToString(),
+        //        Text = pt.Description
+
+        //    }).ToList();
+
+        //    //ready to make view model now
+
+
+        //    var viewModel = new ShoppingCartViewModel
+        //    {
+        //        TotalCost = totalCost,
+        //        User = user,
+        //        PaymentOptions = paymentOptions.ToList(),
+        //        SelectedPaymentId = paymentTypes.FirstOrDefault().PaymentTypeId,
+
+        //        //default to something by using.... firstOrDefault
+        //        OrderDetails = new OrderDetailViewModel()
+        //        {
+        //            Order = order,
+        //            LineItems = order.OrderProducts
+        //            .GroupBy(op => op.ProductId)
+        //            .Select(group => new OrderLineItem
+        //            {
+        //                Units = group.Count(),
+        //                Product = group.FirstOrDefault().Product,
+        //                //min 40 on xbox recording .. give me first one and let me know about the product
+        //                // Cost = group.FirstOrDefault().Product.Price * group.Count()
+        //                Cost = group.Sum(op => op.Product.Price)
+        //            })
+
+        //        }
+
+        //    };
+
+        //    return View(viewModel);
+        //}
+        //[HttpPost]
+        //public async Task<IActionResult> Cart([Bind("SelectedPaymentId")]ShoppingCartViewModel vm)
+        //{
+        //    return View();
+        //}
+        //private Task<ApplicationUser> GetUserAsync()
+        //{
+        //    return _userManager.GetUserAsync(HttpContext.User);
+        //}
+
+
         // GET: Orders
         public async Task<IActionResult> Index()
         {
@@ -46,30 +110,64 @@ namespace Bangazon.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             var user = await GetCurrentUserAsync();
-
-            var order = await _context.Order
+            if (id > 0)
+            {
+                var completedOrder = await _context.Order
                 .Include(o => o.PaymentType)
                 .Include(o => o.User)
-                .Include(o => o.OrderProducts).ThenInclude(o => o.Product)
-                .FirstOrDefaultAsync(m => m.UserId == user.Id && m.DateCompleted == null);
-
-            if (order == null)
-            {
-                _context.Add(new Order()
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
+                .FirstOrDefaultAsync(m => m.UserId == user.Id && m.OrderId == id);
+                if (completedOrder == null)
                 {
-                    DateCreated = DateTime.Today,
-                    UserId = user.Id
-                });
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details));
+                    return NotFound();
+                }
+                var completedShoppingCart = new OrderDetailViewModel(completedOrder);
+                completedShoppingCart.LineItems = completedOrder.OrderProducts.GroupBy(op => op.ProductId)
+                                   .Select(pr => new OrderLineItem
+                                   {
+                                       Units = pr.Count(),
+                                       Cost = pr.Sum(c => c.Product.Price),
+                                       Product = pr.First().Product
+                                   }).ToList();
+                return View(completedShoppingCart);
+            }
+            else
+            {
+                var order = await _context.Order
+                .Include(o => o.PaymentType)
+                .Include(o => o.User)
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
+                .FirstOrDefaultAsync(m => m.UserId == user.Id && m.DateCompleted == null);
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = $"Sorry {user.FirstName}, your shopping cart is empty!";
+                    return RedirectToAction("Index");
+                }
+                if (order.OrderProducts.Count() == 0)
+                {
+                    TempData["ErrorMessage"] = $"Sorry {user.FirstName}, your shopping cart is empty!";
+                    return RedirectToAction("Index");
+                }
+                var shoppingCart = new OrderDetailViewModel(order);
+                shoppingCart.LineItems = order.OrderProducts.GroupBy(op => op.ProductId)
+                                   .Select(pr => new OrderLineItem
+                                   {
+                                       Units = pr.Count(),
+                                       Cost = pr.Sum(c => c.Product.Price),
+                                       Product = pr.First().Product
+                                   }).ToList();
+                // ViewBag.Total = shoppingCart.LineItems.
+                return View(shoppingCart);
             }
 
-            return View(order);
+
+
         }
 
-
-        // GET: Orders/Create
-        public IActionResult Create()
+            // GET: Orders/Create
+            public IActionResult Create()
         {
             ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "AccountNumber");
             ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id");
